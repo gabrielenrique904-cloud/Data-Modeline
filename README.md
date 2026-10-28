@@ -10,6 +10,45 @@ Create flask API's in minutes, [📹 watch the video tutorial](https://youtu.be/
 - Use of `.env` file.
 - SQLAlchemy integration for database abstraction.
 
+## ⭐ Modelo de datos StarWars
+
+Los modelos están en [`src/models.py`](src/models.py) y el diagrama UML en [`diagram.png`](diagram.png).
+
+![Diagrama de la base de datos](diagram.png)
+
+### Tablas
+
+| Tabla | Para qué sirve | Campos principales |
+|---|---|---|
+| `user` | Usuarios del blog, que pueden iniciar sesión y guardar favoritos | `username`, `email`, `password`, `first_name`, `last_name`, `is_active`, `created_at` |
+| `planet` | Planetas de StarWars | `name`, `climate`, `terrain`, `population`, `diameter`, `gravity`, `rotation_period`, `orbital_period`, `description`, `image_url` |
+| `character` | Personajes de StarWars | `name`, `gender`, `birth_year`, `height`, `mass`, `hair_color`, `eye_color`, `skin_color`, `description`, `image_url`, `homeworld_id` |
+| `favorite_planet` | Planetas favoritos de cada usuario | `user_id`, `planet_id`, `created_at` |
+| `favorite_character` | Personajes favoritos de cada usuario | `user_id`, `character_id`, `created_at` |
+
+### Relaciones
+
+- **Usuario ↔ Planeta y Usuario ↔ Personaje (muchos a muchos):** un usuario puede guardar muchos planetas y personajes, y cada uno puede ser favorito de muchos usuarios. Las tablas `favorite_planet` y `favorite_character` conectan ambos lados. Cada una tiene una restricción única (`user_id` + `planet_id` / `character_id`) para que un usuario no guarde el mismo favorito dos veces.
+- **Planeta → Personaje (uno a muchos):** un planeta puede ser el planeta natal (`homeworld_id`) de muchos personajes, y cada personaje tiene como máximo uno. Por eso el diagrama muestra `{0,1}` del lado del planeta.
+
+### Cómo leer el diagrama
+
+- Cada caja es una tabla y cada fila es una columna con su tipo (`INTEGER`, `VARCHAR`, etc.).
+- `NOT NULL` indica que el campo es obligatorio.
+- El `id` subrayado es la clave primaria.
+- Las líneas discontinuas son relaciones entre tablas. `1` significa "uno", `0..N` significa "cero o muchos" y `{0,1}` significa "cero o uno".
+
+### Cómo se generó el diagrama
+
+El diagrama se generó con `eralchemy2`, la misma herramienta que usa `pipenv run diagram`, leyendo las tablas directamente de `src/models.py`. Para volver a generarlo con el comando oficial (necesita la base de datos PostgreSQL de Codespaces o Gitpod):
+
+```sh
+pipenv install
+pipenv run migrate
+pipenv run upgrade
+pipenv run diagram
+```
+
 ## 1) Installation
 
 This template installs itself in a few seconds if you open it for free with Codespaces (recommended) or Gitpod.
